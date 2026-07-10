@@ -9,6 +9,7 @@ final class SkinController: NSObject, NSWindowDelegate {
     let window: SkinWindow
     private let view: SkinView
     private var timer: Timer?
+    private var isProgrammaticResize = false
     var onMove: ((String, CGPoint) -> Void)?
 
     init(skin: Skin, origin: CGPoint?) {
@@ -47,7 +48,9 @@ final class SkinController: NSObject, NSWindowDelegate {
             var frame = window.frame
             frame.origin.y = frame.maxY - size.height
             frame.size = size
+            isProgrammaticResize = true
             window.setFrame(frame, display: true)
+            isProgrammaticResize = false
             view.frame = NSRect(origin: .zero, size: size)
         }
         view.needsDisplay = true
@@ -60,6 +63,8 @@ final class SkinController: NSObject, NSWindowDelegate {
     }
 
     func windowDidMove(_ notification: Notification) {
+        // Content-driven resizes shift the origin too; only user drags count.
+        guard !isProgrammaticResize else { return }
         onMove?(skin.spec.name, window.frame.origin)
     }
 }

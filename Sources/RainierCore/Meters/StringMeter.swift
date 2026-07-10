@@ -32,8 +32,9 @@ public final class StringMeter: Meter {
            let named = NSFont(name: face, size: size) {
             base = named
         } else {
-            base = NSFont.systemFont(ofSize: size,
-                                     weight: style.contains("bold") ? .semibold : .regular)
+            // Monospaced digits keep live values from jittering as they tick.
+            base = NSFont.monospacedDigitSystemFont(
+                ofSize: size, weight: style.contains("bold") ? .semibold : .regular)
         }
         if style.contains("bold"), !base.fontDescriptor.symbolicTraits.contains(.bold) {
             base = NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask)
