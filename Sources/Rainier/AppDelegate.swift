@@ -3,38 +3,58 @@ import RainierCore
 #endif
 import AppKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
-    private var placeholder: SkinWindow?
+    private let manager = SkinManager()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.title = "☔️"
-        statusItem.menu = buildMenu()
-        showPlaceholder()
+        let menu = NSMenu()
+        menu.delegate = self
+        statusItem.menu = menu
+        manager.start()
     }
 
-    private func buildMenu() -> NSMenu {
-        let menu = NSMenu()
+    // Rebuild the menu each time it opens so the skin list stays current.
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
         menu.addItem(withTitle: "Rainier \(RainierVersion.string)", action: nil, keyEquivalent: "")
         menu.addItem(.separator())
+
+        manager.discover()
+        if manager.available.isEmpty {
+            menu.addItem(withTitle: "No skins found", action: nil, keyEquivalent: "")
+        }
+        for name in manager.available {
+            let item = NSMenuItem(title: name, action: #selector(toggleSkin(_:)), keyEquivalent: "")
+            item.target = self
+            item.state = manager.activeNames.contains(name) ? .on : .off
+            menu.addItem(item)
+        }
+
+        menu.addItem(.separator())
+        let refresh = NSMenuItem(title: "Refresh All", action: #selector(refreshAll), keyEquivalent: "r")
+        refresh.target = self
+        menu.addItem(refresh)
+        let openFolder = NSMenuItem(title: "Open Skins Folder", action: #selector(openSkinsFolder), keyEquivalent: "o")
+        openFolder.target = self
+        menu.addItem(openFolder)
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Quit Rainier", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        return menu
     }
 
-    private func showPlaceholder() {
-        let window = SkinWindow(contentRect: NSRect(x: 80, y: 200, width: 220, height: 60))
-        let label = NSTextField(labelWithString: "Rainier is running")
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 18, weight: .medium)
-        label.frame = NSRect(x: 16, y: 18, width: 200, height: 24)
-        let view = NSView(frame: window.contentLayoutRect)
-        view.wantsLayer = true
-        view.layer?.backgroundColor = CGColor(gray: 0, alpha: 0.55)
-        view.layer?.cornerRadius = 10
-        view.addSubview(label)
-        window.contentView = view
-        window.orderFrontRegardless()
-        placeholder = window
+    @objc private func toggleSkin(_ sender: NSMenuItem) {
+        manager.toggle(name: sender.title)
+    }
+
+    @objc private func refreshAll() {
+        manager.refreshAll()
+    }
+
+    @objc private func openSkinsFolder() {
+        try? FileManager.default.createDirectory(at: RainierHome.skinsURL,
+                                                 withIntermediateDirectories: true)
+        NSWorkspace.shared.open(RainierHome.skinsURL)
     }
 }
