@@ -9,6 +9,7 @@ final class SkinManager {
     private(set) var available: [String] = []          // skin folder names
     private var controllers: [String: SkinController] = [:]
     private var config = RainierHome.loadConfig()
+    private var cascadeCount = 0
 
     var activeNames: Set<String> { Set(controllers.keys) }
 
@@ -74,8 +75,15 @@ final class SkinManager {
             NSLog("Rainier: failed to load skin '%@'", name)
             return
         }
-        let origin = config.positions[name].flatMap {
+        var origin = config.positions[name].flatMap {
             $0.count == 2 ? CGPoint(x: $0[0], y: $0[1]) : nil
+        }
+        if origin == nil {
+            // Cascade skins that have never been placed so they don't stack.
+            let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+            origin = CGPoint(x: screen.minX + 60 + CGFloat(cascadeCount) * 40,
+                             y: screen.maxY - skin.contentSize.height - 60 - CGFloat(cascadeCount) * 60)
+            cascadeCount += 1
         }
         let controller = SkinController(skin: skin, origin: origin)
         controller.onMove = { [weak self] name, point in
