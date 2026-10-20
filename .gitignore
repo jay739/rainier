@@ -4,3 +4,7 @@
 .DS_Store
 dist/
 .build-out/
+
+# AI build specs and session reports: kept locally, never committed
+MISSION*.md
+REPORT.md
