@@ -1,5 +1,9 @@
 # Rainier ☔️
 
+<p align="center">
+  <img src="docs/logo.svg" alt="rainier logo" width="128" />
+</p>
+
 **A native, open-source Rainmeter alternative for macOS.**
 
 Rainier renders *skins* — plain-text INI files describing live desktop widgets —

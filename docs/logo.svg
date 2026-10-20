@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect x="0" y="0" width="512" height="512" rx="123" ry="123" fill="#0B0D10"/>
+  <g id="icon">
+    <!-- raindrop -->
+    <path d="M 256 78 C 256 78 126 232 126 320 C 126 392 184 448 256 448 C 328 448 386 392 386 320 C 386 232 256 78 256 78 Z" fill="#22D3EE"/>
+    <!-- desktop meters inside the drop -->
+    <rect x="188" y="304" width="32" height="96" rx="16" fill="#0B0D10"/>
+    <rect x="240" y="252" width="32" height="148" rx="16" fill="#0B0D10"/>
+    <rect x="292" y="332" width="32" height="68" rx="16" fill="#0B0D10"/>
+    <!-- glint -->
+    <ellipse cx="190" cy="262" rx="14" ry="34" transform="rotate(25 190 262)" fill="#F2F0EA"/>
+  </g>
+</svg>

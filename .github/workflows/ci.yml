@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build, test and package
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SwiftPM build
+        run: swift build -c release
+      - name: Tests
+        run: Scripts/build.sh --tests
+      - name: Package Rainier.app
+        run: |
+          Scripts/make-app.sh
+          ditto -c -k --keepParent dist/Rainier.app dist/Rainier.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rainier-app
+          path: dist/Rainier.zip
